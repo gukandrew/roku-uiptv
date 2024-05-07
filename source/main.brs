@@ -5,7 +5,7 @@ sub Main()
   if reg.Exists("primaryfeed") then
     url = reg.Read("primaryfeed")
   else
-    url = "https://site.com/playlist.m3u"
+    url = "https://mater.com.ua/ip/ua.m3u"
   end if
 
   screen = CreateObject("roSGScreen")
