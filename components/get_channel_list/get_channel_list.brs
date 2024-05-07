@@ -52,6 +52,9 @@ sub getContent()
     if maExtinf.Count () = 3
       if hasGroups
         groupName = reHasGroups.Match(line)[1]
+        if groupName = "" or groupName = invalid
+          groupName = "General"
+        end if
         group = invalid
         REM Don't know why, but FindNode refused to work here
         for x = 0 to con.getChildCount() - 1
