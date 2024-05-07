@@ -13,6 +13,10 @@ sub init()
   m.video.ObserveField("state", "checkState")
 
   showdialog() 'Force a keyboard dialog.
+  
+  m.save_feed_url.control = "stop"
+  m.top.dialog.close = true
+  m.get_channel_list.control = "RUN"
 end sub
 
 ' **************************************************************
