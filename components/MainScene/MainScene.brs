@@ -1,6 +1,8 @@
 sub init()
   m.top.backgroundURI = "pkg:/images/background-controls.jpg"
 
+  m.selectedItemURL = ""
+
   m.save_feed_url = m.top.FindNode("save_feed_url") 'Save url to registry
 
   m.get_channel_list = m.top.FindNode("get_channel_list") 'get url from registry and parse the feed
@@ -21,29 +23,62 @@ end sub
 
 ' **************************************************************
 
+sub minimizePlayer()
+  m.list.SetFocus(true)
+  m.video.translation = [800, 100]
+  m.video.width = 960
+  m.video.height = 540
+end sub
+
+sub maximizePlayer()
+  m.list.SetFocus(false)
+  m.top.SetFocus(true)
+  m.video.translation = [0, 0]
+  m.video.width = 0
+  m.video.height = 0
+end sub
+
+sub togglePlayerFullscreen()
+  if m.video.width = 0 ' if player is in fullscreen mode
+    minimizePlayer()
+  else
+    maximizePlayer()
+  end if
+end sub
+
+sub togglePlayerPlayPause()
+  if m.video.control = "play"
+    m.video.control = "pause"
+  else
+    m.video.control = "play"
+  end if
+end sub
+
 function onKeyEvent(key as string, press as boolean) as boolean
   result = false
 
-  if(press)'
-
-    if(key = "right")
-      m.list.SetFocus(false)
-      m.top.SetFocus(true)
-      m.video.translation = [0, 0]
-      m.video.width = 0
-      m.video.height = 0
+  if press
+    if key = "play"
+      togglePlayerPlayPause()
       result = true
-    else if(key = "left")
-      m.list.SetFocus(true)
-      m.video.translation = [800, 100]
-      m.video.width = 960
-      m.video.height = 540
+    else if key = "OK" and m.video.content.url = m.selectedItemURL
+      togglePlayerFullscreen()
+    else if key = "right"
+      maximizePlayer()
       result = true
-    else if(key = "back")
-      m.list.SetFocus(true)
-      m.video.translation = [800, 100]
-      m.video.width = 960
-      m.video.height = 540
+    else if key = "left"
+      minimizePlayer()
+      result = true
+    else if key = "back"
+      if m.video.width = 0
+        minimizePlayer()
+      else 
+        if m.video.state = "playing"
+          m.video.control = "pause"
+        ' else ' if video is already stopped then exit the app
+        '   end
+        end if
+      end if
       result = true
     else if(key = "options")
       showdialog()
@@ -83,7 +118,10 @@ sub setChannel()
   'Probably would be good to make content = content.clone(true) but for now it works like this
   content.streamFormat = "hls,mp4,mkv,mp3,dash,wpa,etc."
 
-  if m.video.content <> invalid and m.video.content.url = content.url return
+  if m.video.content <> invalid and m.video.content.url = content.url
+    m.selectedItemURL = content.url
+    return
+  end if
 
   content.HttpSendClientCertificates = true
   content.HttpCertificatesFile = "common:/certs/ca-bundle.crt"
@@ -102,8 +140,6 @@ end sub
 
 sub showdialog()
   print ">>>  ENTERING KEYBOARD <<<"
-
-
   keyboarddialog = createObject("roSGNode", "KeyboardDialog")
   keyboarddialog.backgroundUri = "pkg:/images/rsgde_bg_hd.jpg"
   keyboarddialog.title = "Enter .m3u URL"
